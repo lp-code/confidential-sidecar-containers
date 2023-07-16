@@ -7,10 +7,10 @@
 
 In our confidential container group example, we will deploy the skr sidecar along with a set of test containers that exercise and test the REST API.
 
-- **skr sidecar.** The sidecar’s entry point is /skr.sh which uses the SkrSideCarArgs environment variable to pass the certificate cache endpoint information.
-- **attest/raw test.** The sidecar’s entry point is /tests/skr/attest_client.sh which uses the AttestClientRuntimeData environment variable to pass a blob whose sha-256 digest will be encoded in the raw attestation report as report_data.
-- **attest/maa test.** The sidecar’s entry point is /tests/skr/attest_client.sh which uses two environment variables: (i) AttestClientMAAEndpoint passes the Microsoft Azure Attestation endpoint which will author the attestation token, (ii) AttestClientRuntimeData passes a blob whose sha-256 digest will be encoded in the attestation token as runtime claim.
-- **key/release test.** The sidecar’s entry point is /tests/skr/skr_client.sh which uses the three environment variables: (i) SkrClientKID passes the key identifier of the key to be released from the key vault, (ii) SkrClientAKVEndpoint passes the key vault endpoint from which the key will be released, and (iii) SkrClientMAAEndpoint passes the Microsoft Azure Attestation endpoint shall author the attestation token required for releasing the secret. The MAA endpoint shall be the same as the one specified in the SKR policy during the key import to the key vault.
+- **skr sidecar.** The sidecar’s entry point is `/skr.sh` which uses the `SkrSideCarArgs` environment variable to pass the certificate cache endpoint information.
+- **attest/raw test.** The sidecar’s entry point is `/tests/skr/attest_client.sh` which uses the `AttestClientRuntimeData` environment variable to pass a blob whose sha-256 digest will be encoded in the raw attestation report as report_data.
+- **attest/maa test.** The sidecar’s entry point is `/tests/skr/attest_client.sh` which uses two environment variables: (i) `AttestClientMAAEndpoint` passes the Microsoft Azure Attestation endpoint which will author the attestation token, (ii) `AttestClientRuntimeData` passes a blob whose sha-256 digest will be encoded in the attestation token as runtime claim.
+- **key/release test.** The sidecar’s entry point is `/tests/skr/skr_client.sh` which uses the three environment variables: (i) `SkrClientKID` passes the key identifier of the key to be released from the key vault, (ii) `SkrClientAKVEndpoint` passes the key vault endpoint from which the key will be released, and (iii) `SkrClientMAAEndpoint` passes the Microsoft Azure Attestation endpoint shall author the attestation token required for releasing the secret. The MAA endpoint shall be the same as the one specified in the SKR policy during the key import to the key vault.
 
 ### Policy generation
 
@@ -22,7 +22,7 @@ The ARM template can be used directly to generate a security policy. The followi
 az confcom acipolicygen -a aci-skr-arm-template.json --debug-mode
 ```
 
-The ARM template file includes three entries: (i) skr sidecar container which whitelists the /skr.sh as entry point command and the environment variable SkrSideCarArgs used by the script, (ii) attest_client container which whitelists the /tests/skr/attest_client.sh as entry point command and a set of environment variables used by the script and whose names begin with AttestClient, and  (iii) skr_client container which whitelists the /tests/skr/skr_client.sh as entry point command and a set of environment variables used by the script and whose names begin with SkrClient.
+The ARM template file includes three entries: (i) skr sidecar container which whitelists the /skr.sh as entry point command and the environment variable `SkrSideCarArgs` used by the script, (ii) attest_client container which whitelists the /tests/skr/attest_client.sh as entry point command and a set of environment variables used by the script and whose names begin with AttestClient, and  (iii) skr_client container which whitelists the /tests/skr/skr_client.sh as entry point command and a set of environment variables used by the script and whose names begin with SkrClient.
 Please note that:
 
 - The skr sidecar must be allowed to execute as elevated because it needs access to the PSP which is mounted as a device at /dev/sev.
@@ -41,7 +41,7 @@ If you don't already have a valid attestation endpoint, create a [Microsoft Azur
 az attestation show --name "<ATTESTATION PROVIDER NAME>" --resource-group "<RESOURCE GROUP>"
 ```
 
-Copy the AttestURI endpoint value (sans https://) to the [Attestation Authority endpoint](importkeyconfig.json#L6) in `importkeyconfig.json` and to [SkrClientMAAEndpoint](aci-arm-template.json#L56) and [AttestClientMAAEndpoint](aci-arm-template.json#L106) in `aci-arm-template.json`.
+Copy the AttestURI endpoint value (sans https://) to the [Attestation Authority endpoint](importkeyconfig.json#L6) in `importkeyconfig.json` and to [`SkrClientMAAEndpoint`](aci-arm-template.json#L56) and [`AttestClientMAAEndpoint`](aci-arm-template.json#L106) in `aci-arm-template.json`.
 
 #### 2. Generate User Managed Identity
 
@@ -75,7 +75,7 @@ The AAD token with permission to AKV/mHSM can be obtained with the following com
 az account get-access-token --resource https://managedhsm.azure.net
 ```
 
-Replace [AAD token](importkeyconfig.json#L11) in `importkeyconfig.json` and [SkrClientAKVEndpoint](aci-arm-template.json#L60) in `aci-arm-template.json` with the output accessToken.
+Replace [AAD token](importkeyconfig.json#L11) in `importkeyconfig.json` and [`SkrClientAKVEndpoint`](aci-arm-template.json#L60) in `aci-arm-template.json` with the output accessToken.
 
 #### 5. Fill in Key Information
 
@@ -83,7 +83,7 @@ After setting up an [Azure Key Vault resource](#2-generate-user-managed-identity
 
 Additionally, fill in the optional [key derivation](importkeyconfig.json#L14) for RSA keys and [Key type: `RSA-HSM` or `oct-HSM`](importkeyconfig.json#L4) fields or remove these fields from the `importkeyconfig.json` file.
 
-Copy the key name into [SkrClientKID](aci-arm-template.json#L64) in the `aci-arm-template.json`.
+Copy the key name into [`SkrClientKID`](aci-arm-template.json#L64) in the `aci-arm-template.json`.
 
 #### 6. Generate Security Policy
 
